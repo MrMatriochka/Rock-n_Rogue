@@ -30,11 +30,16 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = new Vector3(moveVertical, 0.0f, moveHorizontal);
 
         controller.Move(movement * speed * Time.deltaTime);
-  
-        anim.SetFloat("Blend",controller.velocity.magnitude/speed);
+
+        //anim
+        float dotProductZ = Vector3.Dot(movement.normalized, transform.forward);
+        float dotProductX = Vector3.Dot(movement.normalized, transform.right);
+        print(new Vector2(dotProductZ, dotProductX));
+        anim.SetFloat("MoveZ", dotProductZ);
+        anim.SetFloat("MoveX", dotProductX);
 
         //dash
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             StartCoroutine(Dash());
         }
@@ -86,7 +91,6 @@ public class PlayerController : MonoBehaviour
         {
             Destroy(other);
             hp --;
-            anim.SetTrigger("hit");
         }
     }
 }
