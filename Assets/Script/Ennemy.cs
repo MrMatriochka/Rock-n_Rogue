@@ -27,8 +27,8 @@ public class Ennemy : MonoBehaviour
         if(other.CompareTag("Bullet"))
         {
             Destroy(other);
-            int damage = other.GetComponent<Bullet>().baseDamage * RythmGameManager.instance.currentMultiplier;
-            hp -= damage;
+            //int damage = other.GetComponent<Bullet>().baseDamage * RythmGameManager.instance.currentMultiplier;
+            hp -= 1;
             healthBar.value = hp;
             anim.SetTrigger("Hit");
             if (hp<=0)

@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -1866897668397747915}
   m_Layer: 0
   m_Name: EnnemyBullet
-  m_TagString: HurtDamage
+  m_TagString: HurtPlayer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

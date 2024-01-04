@@ -8,7 +8,7 @@ public class RythmGameManager : MonoBehaviour
     public int currentMultiplier;
     public int multiplierTracker;
     public int[] multiplierThresholds;
-
+    public PlayerController player;
     public TMP_Text multiplierText;
     void Start()
     {
@@ -22,12 +22,10 @@ public class RythmGameManager : MonoBehaviour
     {
         
     }
-    public GameObject bulletSpawnPoint;
-    public GameObject bulletPrefab;
-    public GameObject particlesPrefab;
+    
     public void NoteHit()
     {
-       Instantiate(bulletPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+        //player.Shoot(true);
 
         if(currentMultiplier-1<multiplierThresholds.Length)
         {
@@ -48,8 +46,7 @@ public class RythmGameManager : MonoBehaviour
     }
     public void NoteMissed()
     {
-        Instantiate(bulletPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
-        Instantiate(particlesPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+        //player.Shoot(false);
         multiplierTracker = 0;
         currentMultiplier = 1;
         multiplierText.text = "X " + currentMultiplier;
