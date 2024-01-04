@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     public TMP_Text hpUI;
     public TMP_Text ammoUI;
     public GameObject reloadCanvas;
+    public GameObject cursor;
     void Start()
     {
         mainCamera = Camera.main;
@@ -35,10 +36,15 @@ public class PlayerController : MonoBehaviour
         ammo = ammoMax;
         hpUI.text = "x " + hp;
         ammoUI.text = ammo+"/" + ammoMax;
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Confined;
     }
 
     void Update()
     {
+        cursor.transform.position = Input.mousePosition;
+
         //move
         float moveHorizontal = -Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
@@ -164,9 +170,16 @@ public class PlayerController : MonoBehaviour
     void Reload()
     {
         reloadCanvas.SetActive(true);
+        Time.timeScale = 0.2f;
+    }
 
-        ammo = ammoMax;
-        ammoUI.text = ammo + "/" + ammoMax;
+    public void Reload(int bullet)
+    {
+        if (ammo < ammoMax)
+        {
+            ammo += bullet;
+            ammoUI.text = ammo + "/" + ammoMax;
+        }
     }
     private void OnTriggerEnter(Collider other)
     {

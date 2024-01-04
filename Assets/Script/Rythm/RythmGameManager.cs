@@ -26,7 +26,7 @@ public class RythmGameManager : MonoBehaviour
     public void NoteHit()
     {
         //player.Shoot(true);
-
+        player.Reload(1);
         if(currentMultiplier-1<multiplierThresholds.Length)
         {
             multiplierTracker++;

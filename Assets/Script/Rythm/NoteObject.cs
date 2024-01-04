@@ -8,7 +8,7 @@ public class NoteObject : MonoBehaviour
     public float beatTempo;
     private void Update()
     {
-        transform.position -= new Vector3(beatTempo * Time.deltaTime, 0, 0);
+        transform.position -= new Vector3(beatTempo * Time.deltaTime * (1/Time.timeScale), 0, 0);
         if (Input.GetButtonDown("Fire1"))
         {
             if (canBePressed)
