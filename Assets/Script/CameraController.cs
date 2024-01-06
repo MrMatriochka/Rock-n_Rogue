@@ -10,7 +10,6 @@ public class CameraController : MonoBehaviour
     public float dampingDistance;
     Camera mainCamera;
 
-    public GameObject debug;
     void Start()
     {
         offset = transform.position - player.transform.position;

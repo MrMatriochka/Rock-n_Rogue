@@ -16,11 +16,13 @@ public class Ennemy : MonoBehaviour
         cam = Camera.main;
         healthBar.maxValue = hp;
         healthBar.value = hp;
+
+        healthBarCanvas.transform.rotation = Quaternion.Euler(cam.transform.rotation.x, cam.transform.rotation.y+90, cam.transform.rotation.z);
     }
     private void Update()
     {
         
-        healthBarCanvas.transform.LookAt(cam.transform);
+       // healthBarCanvas.transform.LookAt(cam.transform);
     }
     private void OnTriggerEnter(Collider other)
     {

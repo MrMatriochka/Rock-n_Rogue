@@ -98,16 +98,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+  rateOfFire: 0
+  rollCd: 0
   hp: 0
   bulletSpawnPoint: {fileID: 5470052757728698260}
   bulletPrefab: {fileID: 7959522615294761669, guid: 96b476c1ad761ae449e23d3d0101a289,
     type: 3}
   particlesPrefab: {fileID: 8383001502703504198, guid: dab99bc19c11be348be4daa501e977cd,
     type: 3}
-  dashForce: 4
-  dashDuration: 0.1
-  dashParticles: {fileID: 8383001502703504198, guid: 1e3589e566ced8b48bbcad60b9389c5a,
-    type: 3}
+  rollDistance: 0
+  rollDuration: 0
+  ammoMax: 0
+  hpUI: {fileID: 0}
+  ammoUI: {fileID: 0}
+  reloadCanvas: {fileID: 0}
+  cursor: {fileID: 0}
+  rigReference: {fileID: 0}
 --- !u!1 &5470052757728698260
 GameObject:
   m_ObjectHideFlags: 0
@@ -210,8 +216,30 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3541754002163558908, guid: bd6ee82c5e06b3f4f86113cbf8261ae1,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4102857625153057435}
   m_SourcePrefab: {fileID: 100100000, guid: bd6ee82c5e06b3f4f86113cbf8261ae1, type: 3}
+--- !u!1 &5361248434928552011 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3541754002163558908, guid: bd6ee82c5e06b3f4f86113cbf8261ae1,
+    type: 3}
+  m_PrefabInstance: {fileID: 8881148441821962679}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4102857625153057435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5361248434928552011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d5a30fd59422ef47b01dbbd546ec02b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &8952490661590858328 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 539745478100655087, guid: bd6ee82c5e06b3f4f86113cbf8261ae1,

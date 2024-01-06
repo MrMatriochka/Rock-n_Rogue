@@ -8,25 +8,25 @@ public class PlayerController : MonoBehaviour
     public float rateOfFire;
     float shootTimer;
     bool canShoot;
-    public float dashCd;
-    bool canDash;
-    float dashTimer;
+    public float rollCd;
+    bool canRoll;
+    float rollTimer;
     public int hp;
     public GameObject bulletSpawnPoint;
     public GameObject bulletPrefab;
     public GameObject particlesPrefab;
-    public GameObject dashParticles;
     Camera mainCamera;
     Animator anim;
     CharacterController controller;
-    public float dashDistance;
-    public float dashDuration;
     public int ammoMax;
     int ammo;
     public TMP_Text hpUI;
     public TMP_Text ammoUI;
     public GameObject reloadCanvas;
     public GameObject cursor;
+
+    [HideInInspector]public bool canMove = true;
+    [HideInInspector]public bool canRotate = true;
     void Start()
     {
         mainCamera = Camera.main;
@@ -39,6 +39,9 @@ public class PlayerController : MonoBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
+
+        canMove = true;
+        canRotate = true;
     }
 
     void Update()
@@ -46,42 +49,52 @@ public class PlayerController : MonoBehaviour
         cursor.transform.position = Input.mousePosition;
 
         //move
-        float moveHorizontal = -Input.GetAxisRaw("Horizontal");
-        float moveVertical = Input.GetAxisRaw("Vertical");
-
-        Vector3 movement = new Vector3(moveVertical, 0.0f, moveHorizontal).normalized;
-
-        controller.Move(movement * speed * Time.deltaTime);
-
-        //anim
-        if(movement != Vector3.zero)
+        if (canMove)
         {
-            anim.SetBool("IsMoving",true);
-        }
-        else { anim.SetBool("IsMoving", false); }
+            float moveHorizontal = -Input.GetAxisRaw("Horizontal");
+            float moveVertical = Input.GetAxisRaw("Vertical");
 
-        float dotProductZ = Vector3.Dot(movement.normalized, transform.forward);
-        float dotProductX = Vector3.Dot(movement.normalized, transform.right);
-        anim.SetFloat("MoveZ", dotProductZ);
-        anim.SetFloat("MoveX", dotProductX);
+            Vector3 movement = new Vector3(moveVertical, 0.0f, moveHorizontal).normalized;
+
+            controller.Move(movement * speed * Time.deltaTime);
+
+            //anim
+            if (movement != Vector3.zero)
+            {
+                anim.SetBool("IsMoving", true);
+            }
+            else { anim.SetBool("IsMoving", false); }
+
+            float dotProductZ = Vector3.Dot(movement.normalized, transform.forward);
+            float dotProductX = Vector3.Dot(movement.normalized, transform.right);
+            anim.SetFloat("MoveZ", dotProductZ);
+            anim.SetFloat("MoveX", dotProductX);
+        }
+        
+
+       
 
         //dash
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            StartCoroutine(Dash());
+            Roll();
         }
-        
+
 
         //rotate
-        Ray cameraRay = mainCamera.ScreenPointToRay(Input.mousePosition);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
-        float rayLength;
-
-        if (groundPlane.Raycast(cameraRay, out rayLength))
+        if (canRotate)
         {
-            Vector3 pointToLook = cameraRay.GetPoint(rayLength);
-            transform.LookAt(new Vector3(pointToLook.x, transform.position.y, pointToLook.z));
+            Ray cameraRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+            float rayLength;
+
+            if (groundPlane.Raycast(cameraRay, out rayLength))
+            {
+                Vector3 pointToLook = cameraRay.GetPoint(rayLength);
+                transform.LookAt(new Vector3(pointToLook.x, transform.position.y, pointToLook.z));
+            }
         }
+        
 
         //shoot
         if (Input.GetButtonDown("Fire1"))
@@ -99,13 +112,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //dash cd
-        if (!canDash)
+        //roll cd
+        if (!canRoll)
         {
-            dashTimer -= Time.deltaTime;
-            if (dashTimer <= 0)
+            rollTimer -= Time.deltaTime;
+            if (rollTimer <= 0)
             {
-                canDash = true;
+                canRoll = true;
             }
         }
 
@@ -117,37 +130,28 @@ public class PlayerController : MonoBehaviour
     }
 
     
-    private IEnumerator Dash()
+    private void Roll()
     {
-        if(canDash)
+        if(canRoll)
         {
             float moveHorizontal = -Input.GetAxisRaw("Horizontal");
             float moveVertical = Input.GetAxisRaw("Vertical");
 
-            Vector3 movement = new Vector3(moveVertical, 0.0f, moveHorizontal).normalized;
-            if (movement.magnitude == 0)
+            Vector3 pointToLook = new Vector3(moveVertical, 0.0f, moveHorizontal).normalized;
+            if (pointToLook.magnitude == 0)
             {
-                movement = transform.forward;
+                pointToLook = transform.forward;
             }
+            pointToLook += transform.position;
+            transform.LookAt(new Vector3(pointToLook.x, transform.position.y, pointToLook.z));
 
-            Vector3 currentPos = transform.position;
-            Vector3 Gotoposition = currentPos + movement * dashDistance;
-            float elapsedTime = 0;
+            canMove = false;
+            canRotate = false;
+            anim.SetTrigger("Roll");
 
-            //Instantiate(dashParticles, transform.position, Quaternion.identity);
-            while (elapsedTime < dashDuration)
-            {
-                transform.position = Vector3.Lerp(currentPos, Gotoposition, (elapsedTime / dashDuration));
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            //Instantiate(dashParticles, transform.position, Quaternion.identity);
-            canDash = false;
-            dashTimer = dashCd;
-            yield return null;
+            canRoll = false;
+            rollTimer = rollCd;
         }
-        yield return null;
     }
 
     public void Shoot(bool hit)
