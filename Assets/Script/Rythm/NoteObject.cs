@@ -5,21 +5,21 @@ using UnityEngine;
 public class NoteObject : MonoBehaviour
 {
     public bool canBePressed;
-    public float beatTempo;
+    //public float beatTempo;
     private void Update()
     {
-        transform.position -= new Vector3(beatTempo * Time.deltaTime * (1/Time.timeScale), 0, 0);
+        //transform.position -= new Vector3(beatTempo * Time.deltaTime * (1/Time.timeScale), 0, 0);
         if (Input.GetButtonDown("Fire1"))
         {
             if (canBePressed)
             {
                 RythmGameManager.instance.NoteHit();
-                if (transform.localPosition.x < -460 && transform.localPosition.x > -455)
-                {
-                    RythmGameManager.instance.PerfectHit();
-                }
+                //if (transform.localPosition.x < -460 && transform.localPosition.x > -455)
+                //{
+                //    RythmGameManager.instance.PerfectHit();
+                //}
 
-                Destroy(gameObject);
+                //Destroy(gameObject);
             }
         }
     }
@@ -30,12 +30,12 @@ public class NoteObject : MonoBehaviour
             canBePressed = true;
             collision.GetComponent<HeartController>().noteDetector = true;
         }
-        if (collision.CompareTag("MissedUI"))
-        {
-            //RythmGameManager.instance.NoteMissed();
-            Destroy(gameObject);
+        //if (collision.CompareTag("MissedUI"))
+        //{
+        //    //RythmGameManager.instance.NoteMissed();
+        //    Destroy(gameObject);
 
-        }
+        //}
     }
 
     private void OnTriggerExit2D(Collider2D collision)
