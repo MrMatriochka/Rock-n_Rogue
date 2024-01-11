@@ -125,7 +125,7 @@ public class PlayerController : MonoBehaviour
         //reload
         if (Input.GetKeyDown(KeyCode.R))
         {
-            Reload();
+            Reload(ammoMax);
         }
     }
 
