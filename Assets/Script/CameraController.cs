@@ -45,7 +45,7 @@ public class CameraController : MonoBehaviour
             Vector3 target = (pointToLook- player.transform.position).normalized * newDampingDistance+ offset + player.transform.position;
 
             camTarget.transform.position = target-offset;
-            transform.position = Vector3.Lerp(transform.position, target, camSpeed*Time.deltaTime);
+            //transform.position = Vector3.Lerp(transform.position, target, camSpeed*Time.deltaTime);
             
         }
 

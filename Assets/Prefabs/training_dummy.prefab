@@ -158,6 +158,8 @@ MonoBehaviour:
   hp: 10
   healthBarCanvas: {fileID: 4284959988614475510}
   healthBar: {fileID: 4895910920478098866}
+  particlesPrefab: {fileID: 2339436284869160216, guid: ff3b68f0b46b2a149b19ed4968b20676,
+    type: 3}
 --- !u!1 &2143857309242188937
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Cinemachine;
 using TMPro;
 public class PlayerController : MonoBehaviour
 {
@@ -13,7 +15,8 @@ public class PlayerController : MonoBehaviour
     float rollTimer;
     public int hp;
     public GameObject bulletSpawnPoint;
-    public GameObject bulletPrefab;
+    public GameObject bulletHitPrefab;
+    public GameObject bulletMissedPrefab;
     public GameObject particlesPrefab;
     Camera mainCamera;
     Animator anim;
@@ -23,15 +26,30 @@ public class PlayerController : MonoBehaviour
     public TMP_Text hpUI;
     public TMP_Text ammoUI;
     public GameObject reloadCanvas;
+    public Slider reloadBar;
+    public float reloadTime;
+    bool reloading;
     public GameObject cursor;
 
     [HideInInspector]public bool canMove = true;
     [HideInInspector]public bool canRotate = true;
+
+    public CinemachineVirtualCamera cineCam;
+    public float shakeIntensity;
+    public float shakeTime;
+
+    [Header("SFX")]
+    public AudioClip shootClip;
+    public AudioClip noAmmoClip;
+    public AudioClip reloadClip;
+    AudioSource audio;
+
     void Start()
     {
         mainCamera = Camera.main;
         anim = transform.GetChild(0).GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        audio = GetComponent<AudioSource>();
 
         ammo = ammoMax;
         hpUI.text = "x " + hp;
@@ -46,7 +64,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        cursor.transform.position = Input.mousePosition;
+        cursor.transform.position = Input.mousePosition+ Vector3.up*100;
 
         //move
         if (canMove)
@@ -75,9 +93,10 @@ public class PlayerController : MonoBehaviour
        
 
         //dash
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && canRoll)
         {
-            Roll();
+            //Roll();
+            StartCoroutine(Dash());
         }
 
 
@@ -97,9 +116,9 @@ public class PlayerController : MonoBehaviour
         
 
         //shoot
-        if (Input.GetButtonDown("Fire1"))
+        if (Input.GetButtonDown("Fire1") && !reloading && canShoot)
         {
-            Shoot(true);
+            //Shoot(true);
         }
 
         //shoot cd
@@ -125,15 +144,13 @@ public class PlayerController : MonoBehaviour
         //reload
         if (Input.GetKeyDown(KeyCode.R))
         {
-            Reload(ammoMax);
+            StartCoroutine(Reload(ammoMax));
         }
     }
 
     
     private void Roll()
     {
-        if(canRoll)
-        {
             float moveHorizontal = -Input.GetAxisRaw("Horizontal");
             float moveVertical = Input.GetAxisRaw("Vertical");
 
@@ -151,39 +168,119 @@ public class PlayerController : MonoBehaviour
 
             canRoll = false;
             rollTimer = rollCd;
-        }
     }
 
+    public float dashTime;
+    public float dashPower;
+    public GameObject dashParticles;
+    private IEnumerator Dash()
+    {
+        Instantiate(dashParticles, transform.position+Vector3.up, Quaternion.identity);
+        transform.GetChild(0).gameObject.SetActive(false);
+        float elapsedTime = 0;
+        float waitTime = dashTime;
+
+        float moveHorizontal = -Input.GetAxisRaw("Horizontal");
+        float moveVertical = Input.GetAxisRaw("Vertical");
+        Vector3 dashDir = new Vector3(moveVertical, 0.0f, moveHorizontal).normalized;
+        if (dashDir.magnitude == 0)
+        {
+            dashDir = transform.forward;
+        }
+
+        Vector3 currentPos = transform.position;
+        Vector3 Gotoposition = currentPos + dashDir*dashPower;
+
+        while (elapsedTime < waitTime)
+        {
+            transform.position = Vector3.Lerp(currentPos, Gotoposition, (elapsedTime / waitTime));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+        //Instantiate(dashParticles, transform.position + Vector3.up, Quaternion.identity);
+        transform.GetChild(0).gameObject.SetActive(true);
+        canRoll = false;
+        rollTimer = rollCd;
+        yield return null;
+    }
     public void Shoot(bool hit)
     {
-        if (canShoot && ammo>0)
+        if(!reloading && canShoot)
         {
-            Instantiate(bulletPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
-            ammo--;
-            if (!hit)
+            if (ammo > 0)
             {
-                Instantiate(particlesPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+                if (hit)
+                {
+                    Instantiate(bulletHitPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+                }
+                else
+                {
+                    Instantiate(bulletMissedPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+                }
+
+                audio.PlayOneShot(shootClip);
+                StopCoroutine(ShakeCamera(shakeIntensity, shakeTime));
+                StartCoroutine(ShakeCamera(shakeIntensity, shakeTime));
+                ammo--;
+               // GameObject particle = Instantiate(particlesPrefab, bulletSpawnPoint.transform.position, bulletSpawnPoint.transform.rotation);
+                //particle.transform.localScale = particle.transform.localScale * 0.2f;
+
+                canShoot = false;
+                shootTimer = rateOfFire;
+                ammoUI.text = ammo + "/" + ammoMax;
             }
-            canShoot = false;
-            shootTimer = rateOfFire;
-            ammoUI.text = ammo + "/" + ammoMax;
+            else
+            {
+                audio.PlayOneShot(noAmmoClip);
+            }
         }
         
     }
 
+    public IEnumerator ShakeCamera(float intensity, float time)
+    {
+        CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin =
+            cineCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+
+        cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = intensity;
+        yield return new WaitForSeconds(time);
+        cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = 0;
+        yield return null;
+    }
     void Reload()
     {
         reloadCanvas.SetActive(true);
         Time.timeScale = 0.2f;
     }
 
-    public void Reload(int bullet)
+    public IEnumerator Reload(int bullet)
     {
         if (ammo < ammoMax)
         {
+            reloading = true;
+            audio.PlayOneShot(reloadClip);
+            
+            float elapsedTime = 0;
+            reloadBar.transform.parent.gameObject.SetActive(true);
+            while (elapsedTime < reloadTime)
+            {
+                reloadBar.value = elapsedTime / reloadTime;
+                reloadBar.transform.parent.rotation = Quaternion.Euler(mainCamera.transform.rotation.x, mainCamera.transform.rotation.y + 90, mainCamera.transform.rotation.z);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            reloadBar.transform.parent.gameObject.SetActive(false);
+
+            reloading = false;
             ammo += bullet;
+            if (ammo > ammoMax)
+            {
+                ammo = ammoMax;
+            }
             ammoUI.text = ammo + "/" + ammoMax;
         }
+
+        yield return null;
     }
     private void OnTriggerEnter(Collider other)
     {

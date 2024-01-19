@@ -10,6 +10,7 @@ public class Ennemy : MonoBehaviour
     public GameObject healthBarCanvas;
     public Slider healthBar;
     Camera cam;
+    public GameObject particlesPrefab;
     private void Start()
     {
         anim = GetComponent<Animator>();
@@ -28,8 +29,11 @@ public class Ennemy : MonoBehaviour
     {
         if(other.CompareTag("Bullet"))
         {
-            Destroy(other);
+            GameObject particle = Instantiate(particlesPrefab, other.transform.position, other.transform.rotation);
+            particle.transform.localScale = particle.transform.localScale * 0.2f;
+            Destroy(other.gameObject);
             //int damage = other.GetComponent<Bullet>().baseDamage * RythmGameManager.instance.currentMultiplier;
+            
             hp -= 1;
             healthBar.value = hp;
             anim.SetTrigger("Hit");
